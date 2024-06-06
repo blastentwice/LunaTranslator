@@ -67,7 +67,7 @@ class ItemWidget(QWidget):
     def click(self):
         try:
             self.bottommask.setStyleSheet(
-                f'background-color: {str2rgba(globalconfig["dialog_savegame_layout"]["onselectcolor"],globalconfig["dialog_savegame_layout"]["transparent"])};'
+                f'background-color: {str2rgba(globalconfig["dialog_savegame_layout"]["onselectcolor1"],globalconfig["dialog_savegame_layout"]["transparent"])};'
             )
 
             if self != ItemWidget.globallashfocus:
@@ -132,7 +132,7 @@ class ItemWidget(QWidget):
         self.setLayout(layout)
         self.exe = exe
         c = globalconfig["dialog_savegame_layout"][
-            ("onfilenoexistscolor", "backcolor")[os.path.exists(exe)]
+            ("onfilenoexistscolor1", "backcolor1")[os.path.exists(exe)]
         ]
         c = str2rgba(c, globalconfig["dialog_savegame_layout"]["transparent"])
         self.maskshowfileexists.setStyleSheet(f"background-color:{c};")
@@ -1218,9 +1218,9 @@ class dialog_syssetting(QDialog):
                 )
 
         for key, name in [
-            ("backcolor", "颜色"),
-            ("onselectcolor", "选中时颜色"),
-            ("onfilenoexistscolor", "游戏不存在时颜色"),
+            ("backcolor1", "颜色"),
+            ("onselectcolor1", "选中时颜色"),
+            ("onfilenoexistscolor1", "游戏不存在时颜色"),
         ]:
             formLayout.addRow(
                 (_TR(name)),
@@ -1530,6 +1530,7 @@ class dialog_savedgame_new(QWidget):
         self.flow = lazyscrollflow()
         self.flow.bgclicked.connect(ItemWidget.clearfocus)
         self.formLayout.insertWidget(self.formLayout.count() - 1, self.flow)
+        idx = 0
         for k in savehook_new_list:
             if newtags != self.currtags:
                 break
@@ -1562,7 +1563,8 @@ class dialog_savedgame_new(QWidget):
                         break
             if notshow:
                 continue
-            self.newline(k)
+            self.newline(k, idx == 0)
+            idx += 1
 
     def showmenu(self, p):
         menu = QMenu(self)
@@ -1613,7 +1615,6 @@ class dialog_savedgame_new(QWidget):
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(QLabel(_TR("过滤")))
 
         def refreshcombo():
             _ = self.tagswidget.lineEdit.currentText()
@@ -1747,12 +1748,14 @@ class dialog_savedgame_new(QWidget):
             )
             _btn.setEnabled(_able1)
 
-    def getagameitem(self, k):
+    def getagameitem(self, k, focus):
         gameitem = ItemWidget(
             k, functools.partial(_getpixfunction, k), savehook_new_data[k]["title"]
         )
         gameitem.doubleclicked.connect(functools.partial(startgamecheck, self))
         gameitem.focuschanged.connect(self.itemfocuschanged)
+        if focus:
+            gameitem.click()
         return gameitem
 
     def newline(self, k, first=False):
@@ -1763,12 +1766,12 @@ class dialog_savedgame_new(QWidget):
         if first:
             self.idxsave.insert(0, k)
             self.flow.insertwidget(
-                0, (functools.partial(self.getagameitem, k), QSize(itemw, itemh))
+                0, (functools.partial(self.getagameitem, k, True), QSize(itemw, itemh))
             )
         else:
             self.idxsave.append(k)
             self.flow.addwidget(
-                (functools.partial(self.getagameitem, k), QSize(itemw, itemh))
+                (functools.partial(self.getagameitem, k, False), QSize(itemw, itemh))
             )
 
 
@@ -1984,7 +1987,7 @@ class clickitem(QWidget):
     def click(self):
         try:
             self.bottommask.setStyleSheet(
-                f'background-color: {str2rgba(globalconfig["dialog_savegame_layout"]["onselectcolor"],globalconfig["dialog_savegame_layout"]["transparent"])};'
+                f'background-color: {str2rgba(globalconfig["dialog_savegame_layout"]["onselectcolor1"],globalconfig["dialog_savegame_layout"]["transparent"])};'
             )
 
             if self != clickitem.globallashfocus:
@@ -2017,7 +2020,7 @@ class clickitem(QWidget):
         self.maskshowfileexists = QLabel(self)
 
         c = globalconfig["dialog_savegame_layout"][
-            ("onfilenoexistscolor", "backcolor")[os.path.exists(exe)]
+            ("onfilenoexistscolor1", "backcolor1")[os.path.exists(exe)]
         ]
         c = str2rgba(c, globalconfig["dialog_savegame_layout"]["transparent"])
         self.maskshowfileexists.setStyleSheet(f"background-color:{c};")
